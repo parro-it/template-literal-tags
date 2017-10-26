@@ -33,6 +33,6 @@
     "@std/esm": "^0.12.4",
     "ava": "^0.23.0",
     "documentation": "^5.3.3",
-    "linterjs": "^1.7.0"
+    "linterjs": "^1.8.0"
   }
 }
