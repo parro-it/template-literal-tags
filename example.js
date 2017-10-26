@@ -1,3 +1,3 @@
-const $package_var = require("$package_name");
+const templateLiteralTags = require("template-literal-tags");
 
-console.log({ $package_var });
+console.log({ templateLiteralTags });
