@@ -34,5 +34,8 @@
     "ava": "^0.23.0",
     "documentation": "^5.3.3",
     "linterjs": "^1.8.0"
+  },
+  "dependencies": {
+    "justified": "^0.2.1"
   }
 }
