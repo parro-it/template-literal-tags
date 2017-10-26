@@ -1,6 +1,7 @@
 import justified from "justified";
 import compose from "compose-function";
 import reverseArguments from "reverse-arguments";
+import { unthis } from "unthis";
 
 const pipe = reverseArguments(compose);
 
@@ -21,14 +22,13 @@ const mkTag = (name, render) => ({
   end: new TagEnd(name)
 });
 
-const replace = (replaceRe, withValue) => text =>
-  text.replace(replaceRe, withValue);
+const replace = unthis(String.prototype.replace);
 
 const saveMultipleNewline = replace(/\n\n+/g, "§");
 const restoreMultipleNewline = replace(/§/g, "\n");
 const shrinkSpaces = replace(/\s+/g, " ");
-const trim = s => s.trim();
-const toUpperCase = s => s.toUpperCase();
+const trim = unthis(String.prototype.trim);
+const toUpperCase = unthis(String.prototype.toUpperCase);
 
 const flattenLines = pipe(
   saveMultipleNewline,
