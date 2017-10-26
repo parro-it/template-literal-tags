@@ -36,6 +36,8 @@
     "linterjs": "^1.8.0"
   },
   "dependencies": {
-    "justified": "^0.2.1"
+    "compose-function": "^3.0.3",
+    "justified": "^0.2.1",
+    "reverse-arguments": "^1.0.0"
   }
 }

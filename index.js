@@ -1,4 +1,8 @@
 import justified from "justified";
+import compose from "compose-function";
+import reverseArguments from "reverse-arguments";
+
+const pipe = reverseArguments(compose);
 
 class TagStart {
   constructor(tagName, render) {
@@ -17,19 +21,28 @@ const mkTag = (name, render) => ({
   end: new TagEnd(name)
 });
 
-export const upper = mkTag("upper", content =>
-  content
-    .trim()
-    .replace(/[\n\s]+/g, " ")
-    .toUpperCase()
+const replace = (replaceRe, withValue) => text =>
+  text.replace(replaceRe, withValue);
+
+const saveMultipleNewline = replace(/\n\n+/g, "§");
+const restoreMultipleNewline = replace(/§/g, "\n");
+const shrinkSpaces = replace(/\s+/g, " ");
+const trim = s => s.trim();
+const toUpperCase = s => s.toUpperCase();
+
+const flattenLines = pipe(
+  saveMultipleNewline,
+  shrinkSpaces,
+  restoreMultipleNewline,
+  trim
 );
 
+const upperify = pipe(trim, shrinkSpaces, toUpperCase);
+
+export const upper = mkTag("upper", upperify);
+
 const justifyToWidth = (width, content, before) => {
-  const flatted = content
-    .replace(/\n\n+/g, "§")
-    .replace(/\s+/g, " ")
-    .replace(/§/g, "\n\n")
-    .trim();
+  const flatted = flattenLines(content);
   const linePosition = before.match(/\n(.+)$/) || before.match(/^(.+)$/);
   const tagIndent = linePosition[1].length;
   const indentation = new Array(tagIndent).fill(" ").join("");
@@ -54,8 +67,8 @@ export const justifyWidth = width =>
     return justifyToWidth(width, content, before);
   });
 
-function handleTagStart({ i, value, strings, values, result }) {
-  const tagName = value.tagName;
+function handleTagStart({ i, startTag, strings, values, result }) {
+  const tagName = startTag.tagName;
   const otherStrings = [];
   const otherValues = [];
   let j = i + 1;
@@ -72,11 +85,11 @@ function handleTagStart({ i, value, strings, values, result }) {
   i = j;
   if (otherStrings.length !== 0 || otherValues.length !== 0) {
     const tagContent = interpolate(otherStrings, otherValues);
-    const rendered = value.render(tagContent, result);
+    const rendered = startTag.render(tagContent, result);
     return { tagValue: rendered.trim(), idx: i };
   }
 
-  return { tagValue: value.render("", result).trim(), idx: i };
+  return { tagValue: startTag.render("", result).trim(), idx: i };
 }
 
 export function interpolate(strings, values) {
@@ -89,7 +102,7 @@ export function interpolate(strings, values) {
       if (value instanceof TagStart) {
         const { tagValue, idx } = handleTagStart({
           i,
-          value,
+          startTag: value,
           strings,
           values,
           result
