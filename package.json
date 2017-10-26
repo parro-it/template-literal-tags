@@ -1,6 +1,6 @@
 {
   "name": "template-literal-tags",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "tags for template literals",
   "repository": "parro-it/template-literal-tags",
   "author": "Andrea Parodi <andrea@parro.it>",
