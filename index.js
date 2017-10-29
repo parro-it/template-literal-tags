@@ -1,7 +1,7 @@
 import justified from "justified";
 import compose from "compose-function";
 import reverseArguments from "reverse-arguments";
-import { unthis } from "unthis";
+import { replace, trim, toUpperCase } from "native-functions/strings";
 
 const pipe = reverseArguments(compose);
 
@@ -22,13 +22,9 @@ const mkTag = (name, render) => ({
   end: new TagEnd(name)
 });
 
-const replace = unthis(String.prototype.replace);
-
 const saveMultipleNewline = replace(/\n\n+/g, "§");
 const restoreMultipleNewline = replace(/§/g, "\n");
 const shrinkSpaces = replace(/\s+/g, " ");
-const trim = unthis(String.prototype.trim);
-const toUpperCase = unthis(String.prototype.toUpperCase);
 
 const flattenLines = pipe(
   saveMultipleNewline,
@@ -67,54 +63,58 @@ export const justifyWidth = width =>
     return justifyToWidth(width, content, before);
   });
 
-function handleTagStart({ i, startTag, strings, values, result }) {
-  const tagName = startTag.tagName;
-  const otherStrings = [];
-  const otherValues = [];
-  let j = i + 1;
-  for (; j < strings.length; j++) {
-    otherStrings.push(strings[j]);
-    if (j < values.length) {
-      const otherValue = values[j];
-      if (otherValue instanceof TagEnd && otherValue.tagName === tagName) {
-        break;
-      }
-      otherValues.push(otherValue);
+function* contentIterator(startTag, tokens) {
+  let token = tokens.next();
+  while (!token.done) {
+    const { value } = token;
+    if (value instanceof TagEnd && value.tagName === startTag.tagName) {
+      return;
+    }
+    yield value;
+    token = tokens.next();
+  }
+}
+
+function handleTagStart({ startTag, tokens, result }) {
+  const tagContent = interpolateIterator(contentIterator(startTag, tokens));
+  const rendered = startTag.render(tagContent, result);
+  return rendered.trim();
+}
+
+function* zip(strings, values) {
+  for (let i = 0; i < strings.length; i++) {
+    yield strings[i];
+
+    if (i < values.length) {
+      yield values[i];
     }
   }
-  i = j;
-  if (otherStrings.length !== 0 || otherValues.length !== 0) {
-    const tagContent = interpolate(otherStrings, otherValues);
-    const rendered = startTag.render(tagContent, result);
-    return { tagValue: rendered.trim(), idx: i };
-  }
+}
 
-  return { tagValue: startTag.render("", result).trim(), idx: i };
+function interpolateIterator(tokens) {
+  let token = tokens.next();
+  let result = "";
+
+  while (!token.done) {
+    const { value } = token;
+    if (value instanceof TagStart) {
+      const tagValue = handleTagStart({
+        startTag: value,
+        tokens,
+        result
+      });
+      result += tagValue;
+    } else {
+      result += value;
+    }
+    token = tokens.next();
+  }
+  return result;
 }
 
 export function interpolate(strings, values) {
-  let result = "";
-  for (let i = 0; i < strings.length; i++) {
-    result += strings[i];
-
-    if (i < values.length) {
-      const value = values[i];
-      if (value instanceof TagStart) {
-        const { tagValue, idx } = handleTagStart({
-          i,
-          startTag: value,
-          strings,
-          values,
-          result
-        });
-        result += tagValue;
-        i = idx;
-      } else {
-        result += value;
-      }
-    }
-  }
-  return result;
+  const tokens = zip(strings, values);
+  return interpolateIterator(tokens);
 }
 
 export function report(strings, ...values) {

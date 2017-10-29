@@ -38,6 +38,7 @@
   "dependencies": {
     "compose-function": "^3.0.3",
     "justified": "^0.2.1",
+    "native-functions": "^0.1.0",
     "reverse-arguments": "^1.0.0",
     "unthis": "^1.1.0"
   }
