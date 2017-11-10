@@ -11,6 +11,7 @@ class TagStart {
     this.render = render;
   }
 }
+
 class TagEnd {
   constructor(tagName) {
     this.tagName = tagName;
