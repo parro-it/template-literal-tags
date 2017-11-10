@@ -33,11 +33,11 @@
     "@std/esm": "^0.12.4",
     "ava": "^0.23.0",
     "documentation": "^5.3.3",
-    "linterjs": "^1.8.0"
+    "linterjs": "^1.10.1"
   },
   "dependencies": {
     "compose-function": "^3.0.3",
-    "justified": "^0.2.1",
+    "justified": "^1.0.1",
     "native-functions": "^0.1.0",
     "reverse-arguments": "^1.0.0",
     "unthis": "^1.1.0"

@@ -32,21 +32,22 @@ test("justify", t => {
            '-' identifies the job that would become the default
     ${justify.end}
   `;
+
   t.is(
     res,
     `This option shall be supported if the implementation
 supports the User Portability Utilities option. It
 shall cause the shell to notify the user asynchronously
 
-of  background job completions. The following
-message  is  written    to   standard  error:
-"[%d]%c  %s%s  "  , <job-number>,  <current>,
-<status>,  <job-name> where  the fields shall
-be as follows: <current>   The character  '+'
-identifies  the job that would be  used  as a
-default for the fg  or bg utilities; this job
-can also be  specified using the  job_id "%+"
-or   "%%".  The  character '-' identifies the
+of background job completions. The following
+message  is written    to  standard  error:
+"[%d]%c  %s%s " ,  <job-number>, <current>,
+<status>, <job-name> where the fields shall
+be as follows:  <current> The character '+'
+identifies the job that would be used  as a
+default for the fg or bg utilities; this job
+can also be specified using the job_id "%+"
+or "%%".  The  character '-' identifies the
 job that would become the default
 `
   );
